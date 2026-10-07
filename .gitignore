@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.venv/
+data_derived/
+rebuild_v3/
+hosp/
+icu/
+*.pkl
+*.parquet
+*.csv.gz

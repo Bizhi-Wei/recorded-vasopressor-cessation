@@ -1,0 +1,26 @@
+# Cessation measurement sensitivity plan v1
+
+Locked before computation of the new sensitivity results, 2026-09-15. This is a post hoc measurement analysis requested after the descriptive manuscript; it is not prospective registration. Earlier restart diagnostics have already been inspected. No threshold will be selected by the resulting classifications or outcomes.
+
+## Fixed population and reference
+
+Retain all 470 admissions and their original low-dose eligibility times, index ICU stays, original infusion rows, unit normalization, overlap precedence, and 12-hour action-search horizon. The original 0-minute gap rule is the reference: 192 norepinephrine-first, 92 vasopressin-first, 3 simultaneous, and 183 without a recorded action. Observation ends at the earlier of recorded index ICU exit and hospital death; candidate actions follow the existing inclusive 12-hour boundary and exclude ICU exit. Distinguish no action from incomplete observation/unknown doses. Do not refit propensity models, comparative outcomes or 28-day endpoints at changed anchors.
+
+## Sensitivity 1: Paused endings
+
+Attribute each cessation to the same-drug source row active immediately before the transition, using the core's later-original-start and raw-rate ordering. Audit every candidate, not only previously sampled records. If equally ranked source rows disagree on status, retain the exact winning row and conservatively flag the event as Paused-associated when any tied winning row says Paused. Report ties. Require every stopped drug to have an ending positive source row that reproduces its reconstructed rate.
+
+1. Paused exclusion: retain the original first-action classification unless any stopped drug has a Paused-associated ending. Label affected admissions `paused_unclassified`; retain them in the 470-admission denominator. This is an exclusion from the classified-action subset, not evidence of no cessation and not exclusion from the eligible cohort.
+2. Paused reclassification: skip Paused-associated candidate transitions and choose the first subsequent candidate with no Paused-associated ending, within the unchanged search horizon. Retain observed delivery from Paused rows. A later action still requires both agents positive immediately before a transition; no delivery is invented after a Paused endpoint. Report how many baseline actions are lost, delayed, simultaneous or switched. A window containing only skipped actions is `no_accepted_action`, not an absence of a recorded interruption.
+
+## Sensitivity 2: finite short-gap continuity
+
+Independently compare thresholds of 5, 15 and 30 minutes with the reference 0 minutes. For each of NE and VA, bridge a contiguous interval of exactly zero recorded rate only if it is bounded immediately on both sides by finite positive same-drug rates and its length is at most the threshold. Do not bridge NaN segments, leading gaps, unbounded terminal gaps, or gaps whose positive restart is at/after the observation end. Use a binary virtual-positive mask for classification only; preserve all original rates for dose and duration descriptions. Adjacent intervals separated by a positive segment can each qualify. Process the original timeline once per drug, not iterative imputation.
+
+The eligibility time is never rebuilt using a bridged timeline. A positive restart may lie after the 12-hour action deadline, but must lie strictly before the observation end and no more than the chosen threshold after the gap starts. Report these instances and the maximum look-ahead. This future information is used only to diagnose measurement sensitivity, not to select causal eligibility or define a deployable bedside rule. Terminal gaps shorter than the threshold with no observed restart are left unbridged and counted as unresolved short terminal gaps; persistence is not established for them.
+
+## Outputs and checks
+
+Produce admission-level classifications, candidate source attribution, bridged-gap records, terminal-gap flags, complete reference-to-scenario transition counts, 470-admission agreement, agreement among the 284 original single-drug actions, time shifts and direct NE/VA switches. For each scenario's single-drug classes summarize original observed doses immediately before the selected time and original pre-action two-hour net changes, with incomplete/zero-start windows explicit. No new clinical outcome effects are computed. These checks assess robustness of recording definitions, not clinician intent or the biological truth of a cessation.
+
+Required gates: exact reproduction of all 470 reference actions/times and every cached source timeline; fixed unique population; positive ending source support for every cessation; synthetic boundary tests (Paused, overlapping rows, exact gap threshold, unknown and terminal gaps, observation/deadline boundaries, order switch); internal cross-tab totals; original dose arrays unchanged; prior manifest hashes unchanged. Freeze all selected scenarios regardless of result. Deliver the revised descriptive manuscript and a versioned snapshot with checksums, verification script, and explicit remaining clinical/author/ethics limitations. Further analysis changes require a separately versioned amendment.
